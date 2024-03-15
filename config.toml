@@ -1,6 +1,6 @@
 # Be sure to change these!
 base_url = "https://vcrn.github.io"
-title = "index45"
+title = "vcrn"
 
 # Sass compilation is required
 compile_sass = true
@@ -25,10 +25,10 @@ accent_color = "pink"
 # Enabling dark background will also modify primary font color
 # to be darker.
 # Defaults to accent color (or, if not accent color specified, to blue).
-background_color = "dark"
+background_color = "pink"
 
 # The logo text - defaults to "Terminimal theme"
-logo_text = "index45"
+logo_text = "vcrn"
 
 # The logo link - defaults to base_url.
 #logo_home_link = "/take/me/away!"
