@@ -9,6 +9,7 @@ tags = ["Rust"]
 In Rust, there's a concept sometimes referred to as `Type-level programming`. To employ this, you'll create `struct`s, which will (among other things) contain a field of the zero-sized type `PhantomData<T>`: this will tell the compiler that our `struct` acts as if it stores a value of type `T`, and will only be used at compile time for static analysis. Read more in the [Rustonomicon](https://doc.rust-lang.org/nomicon/phantom-data.html).
 
 I've written a small example where this concept is showcased by applying it to a car, which can be found [here](https://github.com/vcrn/type_level_example).
+<!-- more -->
 
 Depending on what gear it's in, we should be permitted to do different things, and some things should be available irrespective of what gear we're in. We'd also like to be able to change gear in a convenient manner. We'll stick with two gears, `Park` and `Neutral`. Some simple designs that don't employ type-level programming to handle this could be:
 * Create an `enum Gear` with the variants `Park` and `Drive`, a `struct Car` that among other things contains the field `gear: Gear`, and let the different methods act in different ways depending on the variant in `gear`.
