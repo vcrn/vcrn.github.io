@@ -6,7 +6,7 @@ date = 2024-03-18
 tags = ["Rust"]
 +++
 
-In Rust, there's a concept sometimes referred to as `Type-level programming`. To employ this, you'll create `struct`s, which will (among other things) contain a field of the zero-sized type `PhantomData<T>`: this will tell the compiler that our `struct` acts as if it stores a value of type `T`, and will only be used at compile time for static analysis. Read more in the [Rustonomicon](https://doc.rust-lang.org/nomicon/phantom-data.html).
+In Rust, there's a concept sometimes referred to as `Type-level programming`. To employ this, you'll create a `struct`, which will (among other things) contain a field of the zero-sized type `PhantomData<T>`: this will tell the compiler that our `struct` acts as if it stores a value of type `T`, and will only be used at compile time for static analysis. Read more in the [Rustonomicon](https://doc.rust-lang.org/nomicon/phantom-data.html).
 
 I've written a small example where this concept is showcased by applying it to a car, which can be found [here](https://github.com/vcrn/type_level_example).
 <!-- more -->
