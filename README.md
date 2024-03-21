@@ -1,3 +1,3 @@
-# index45 website
+# Personal Github pages website
 
-index45 website built using static site generator Zola and the theme Terminimal.
+Github pages website built using static site generator Zola and the theme Terminimal.
