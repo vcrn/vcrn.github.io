@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>vcrn</title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta name="robots" content="noodp"/>
+
+    <link rel="stylesheet" href="https://vcrn.github.io/style.css">
+    <link rel="stylesheet" href="https://vcrn.github.io/color/pink.css">
+
+    <link rel="stylesheet" href="https://vcrn.github.io/font-hack-subset.css">
+
+    </head>
+
+<body class="">
+<div class="container">
+    
+    <header class="header">
+        <div class="header__inner">
+            <div class="header__logo">
+                    
+                <a href="https://vcrn.github.io" style="text-decoration: none;">
+                    <div class="logo">
+                      
+                            vcrn
+                        
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        
+        
+                <nav class="menu">
+            <ul class="menu__inner">
+                <li class="active"><a href="https://vcrn.github.io">Blog</a></li>
+            
+                <li><a href="https://vcrn.github.io/tags">Tags</a></li>
+            
+                <li><a href="https://vcrn.github.io/about">About</a></li>
+            
+                <li><a href="https://github.com/vcrn" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+            </ul>
+        </nav>
+    
+    
+        
+    </header>
+    
+
+    <div class="content">
+        
+    <div class="post">
+        
+    <h1 class="post-title"><a href="https://vcrn.github.io/set-up-zsh/">My zsh set-up</a></h1>
+    <div class="post-meta-inline">
+        
+    <span class="post-date">
+            2022-10-29
+        </span>
+
+    </div>
+
+    
+        <span class="post-tags-inline">
+                :: tags:&nbsp;
+                <a class="post-tag" href="https://vcrn.github.io/tags/zsh/">#zsh</a></span>
+    
+
+        
+        <div class="post-content">
+            <p>This is a short guide for my zsh set-up. I've saved it here for it to be more accessible to me when setting it up on new computers, 
+and in the unlikely event that it would be useful for someone else. In the end, you'll have a quite minimalistic 
+interface where you can do fuzzy searching of your command history by pressing <code>Ctrl+r</code>.</p>
+<span id="continue-reading"></span><h1 id="installing-zsh-as-your-shell">Installing zsh as your shell</h1>
+<p>If you don't already have <code>zsh</code> installed, then install it. To check what shell you are using, open a terminal and run</p>
+<pre data-lang="bash" style="background-color:#151515;color:#e8e8d3;" class="language-bash "><code class="language-bash" data-lang="bash"><span>echo $</span><span style="color:#ffb964;">SHELL
+</span></code></pre>
+<p>which on a new system usually points to <code>bash</code>, returning something like <code>/bin/bash</code>. All the available shells 
+are listed in the file <code>/etc/shells</code>. Run</p>
+<pre data-lang="bash" style="background-color:#151515;color:#e8e8d3;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#ffb964;">cat</span><span> /etc/shells
+</span></code></pre>
+<p>and you'll be presented with paths to the available shells. To set <code>zsh</code> as your default shell, run</p>
+<pre data-lang="bash" style="background-color:#151515;color:#e8e8d3;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#ffb964;">chsh -s</span><span> /usr/bin/zsh
+</span></code></pre>
+<p>or whatever path available to <code>zsh</code>. Sometimes, you need to enter <code>chsh</code> by itself followed by the path 
+when prompted. And sometimes, you might need to restart the system for the change to take effect.</p>
+<h1 id="installing-fzf">Installing fzf</h1>
+<p>Run</p>
+<pre data-lang="bash" style="background-color:#151515;color:#e8e8d3;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#ffb964;">git</span><span> clone</span><span style="color:#ffb964;"> --depth</span><span> 1 https://github.com/junegunn/fzf.git </span><span style="color:#ffb964;">~</span><span>/.fzf
+</span><span style="color:#ffb964;">~/.fzf/install
+</span></code></pre>
+<p>Then, you need to append two lines to <code>~/.zshrc</code>, both starting with <code>source</code> followed by the paths to 
+<code>key-bindings.zsh</code> and <code>completion.zsh</code>, which are located under <code>fzf/</code>. The lines to append might look like:</p>
+<pre style="background-color:#151515;color:#e8e8d3;"><code><span>source /usr/share/fzf/key-bindings.zsh
+</span><span>source /usr/share/fzf/completion.zsh
+</span></code></pre>
+<p>or </p>
+<pre style="background-color:#151515;color:#e8e8d3;"><code><span>source /usr/share/doc/fzf/examples/key-bindings.zsh
+</span><span>source /usr/share/doc/fzf/examples/completion.zsh
+</span></code></pre>
+<h1 id="installing-oh-my-zsh">Installing oh-my-zsh</h1>
+<p>Run</p>
+<pre data-lang="bash" style="background-color:#151515;color:#e8e8d3;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#ffb964;">sh -c </span><span style="color:#556633;">&quot;</span><span style="color:#99ad6a;">$(</span><span style="color:#ffb964;">curl -fsSL</span><span style="color:#99ad6a;"> https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)</span><span style="color:#556633;">&quot;
+</span></code></pre>
+<p>in your terminal. Done!</p>
+<h1 id="installing-powerlevel10k">Installing PowerLevel10k</h1>
+<p>Optionally, start out by installing the recommended <a href="https://github.com/romkatv/powerlevel10k#meslo-nerd-font-patched-for-powerlevel10k">fonts</a> to get more capabilities. </p>
+<p>Then, run</p>
+<pre data-lang="Bash" style="background-color:#151515;color:#e8e8d3;" class="language-Bash "><code class="language-Bash" data-lang="Bash"><span style="color:#ffb964;">git</span><span> clone</span><span style="color:#ffb964;"> --depth</span><span>=1 https://github.com/romkatv/powerlevel10k.git ${</span><span style="color:#ffb964;">ZSH_CUSTOM</span><span>:-$</span><span style="color:#ffb964;">HOME</span><span>/.oh-my-zsh/custom}/themes/powerlevel10k
+</span></code></pre>
+<p>and set <code>ZSH_THEME=&quot;powerlevel10k/powerlevel10k&quot;</code> in <code>~/.zshrc</code>. Opening a new terminal
+will prompt you to make some choices which can later be changed by running <code>p10k configure</code>.</p>
+
+        </div>
+
+        
+    </div>
+
+    </div>
+
+    
+    <footer class="footer">
+        <div class="footer__inner">
+                <div class="copyright copyright--user"> </div>
+            </div>
+    </footer>
+    
+
+</div>
+</body>
+
+</html>

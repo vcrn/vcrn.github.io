@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>vcrn</title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta name="robots" content="noodp"/>
+
+    <link rel="stylesheet" href="https://vcrn.github.io/style.css">
+    <link rel="stylesheet" href="https://vcrn.github.io/color/pink.css">
+
+    <link rel="stylesheet" href="https://vcrn.github.io/font-hack-subset.css">
+
+    </head>
+
+<body class="">
+<div class="container">
+    
+    <header class="header">
+        <div class="header__inner">
+            <div class="header__logo">
+                    
+                <a href="https://vcrn.github.io" style="text-decoration: none;">
+                    <div class="logo">
+                      
+                            vcrn
+                        
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        
+        
+                <nav class="menu">
+            <ul class="menu__inner">
+                <li class="active"><a href="https://vcrn.github.io">Blog</a></li>
+            
+                <li><a href="https://vcrn.github.io/tags">Tags</a></li>
+            
+                <li><a href="https://vcrn.github.io/about">About</a></li>
+            
+                <li><a href="https://github.com/vcrn" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+            </ul>
+        </nav>
+    
+    
+        
+    </header>
+    
+
+    <div class="content">
+        
+    <div class="post">
+        
+    <h1 class="post-title"><a href="https://vcrn.github.io/monty-hall/">Explanation and simulation of the Monty Hall (Three Door) Problem</a></h1>
+    <div class="post-meta-inline">
+        
+    <span class="post-date">
+            2021-03-07
+        </span>
+
+    </div>
+
+    
+        <span class="post-tags-inline">
+                :: tags:&nbsp;
+                <a class="post-tag" href="https://vcrn.github.io/tags/probability/">#Probability</a>&nbsp;
+                <a class="post-tag" href="https://vcrn.github.io/tags/python/">#Python</a></span>
+    
+
+        
+        <div class="post-content">
+            <p>The Monty Hall problem (also known as the Three door problem) concerns what decision to take in the following scenario: There are three doors, with a prize behind one of them. You get to choose one door, then one of the other doors which doesn't have the prize behind it is opened. And now you have to choose whether you want to change door to the one that is left closed (which you didn't select in the beginning) or keep the door which you selected in the beginning. What do you do?</p>
+<span id="continue-reading"></span>
+<p>Assuming that the prize is placed at random and that the host chooses to open a door at random if possible, the correct choice is to switch doors since you'll have a chance of 2/3 to be correct. When this solution to the problem (based on American TV-show Let's Make a Deal, hosted by Monty Hall) was presented by statistician Marilyn vos Savant, it was hard to accept for a substantial amount of people due to its counterintuitive nature.</p>
+<p>Fortunately, it's easy to practically test it, or better yet simulate it. But first, the reasoning for choosing to switch: When you first select doors, you'll have a 1/3 chance to get it right. If you were to switch door before one of the others has been opened, there will still be a 1/3 to get it right, since there are two doors to choose from (and all of the three doors have an equal probability to be correct). After one of them has been opened, the probability for each of the initial doors you didn't choose to be correct (1/3) is combined, since there is now only one door left but the probability of the choices you didn't make to be correct is still 2/3.</p>
+<p>When simulating this, the result is as expected. I wrote a short script in Python simulating this scenario: A prize is put behind a random door (out of three possible), a random door is &quot;guessed&quot; to be the winning door, a door that neither contains the prize behind it nor was initially chosen as the winning door is opened (which is random if two doors are selectable), and then the chosen door is switched to the one remaining. The number of times it got it right in one batch of simulations was 66’488 out of 100’000 (66.49 %).</p>
+<p>Of course, as you get convinced that the reasoning above is correct, a lot of the code that I wrote seems redundant, since the only thing that matters in the end is this:</p>
+<ul>
+<li>Do you want to switch doors in the end? Then you need to select the incorrect door in the beginning.</li>
+<li>Do you not want to switch doors in the end? Then you need to select the correct door in the beginning.</li>
+</ul>
+<h1 id="source">Source</h1>
+<p>The code for the script can be found <a href="https://github.com/vcrn/monty-hall-problem-simulator">here</a>.</p>
+
+        </div>
+
+        
+    </div>
+
+    </div>
+
+    
+    <footer class="footer">
+        <div class="footer__inner">
+                <div class="copyright copyright--user"> </div>
+            </div>
+    </footer>
+    
+
+</div>
+</body>
+
+</html>

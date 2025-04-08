@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>vcrn</title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta name="robots" content="noodp"/>
+
+    <link rel="stylesheet" href="https://vcrn.github.io/style.css">
+    <link rel="stylesheet" href="https://vcrn.github.io/color/pink.css">
+
+    <link rel="stylesheet" href="https://vcrn.github.io/font-hack-subset.css">
+
+    </head>
+
+<body class="">
+<div class="container">
+    
+    <header class="header">
+        <div class="header__inner">
+            <div class="header__logo">
+                    
+                <a href="https://vcrn.github.io" style="text-decoration: none;">
+                    <div class="logo">
+                      
+                            vcrn
+                        
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        
+        
+                <nav class="menu">
+            <ul class="menu__inner">
+                <li class="active"><a href="https://vcrn.github.io">Blog</a></li>
+            
+                <li><a href="https://vcrn.github.io/tags">Tags</a></li>
+            
+                <li><a href="https://vcrn.github.io/about">About</a></li>
+            
+                <li><a href="https://github.com/vcrn" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+            </ul>
+        </nav>
+    
+    
+        
+    </header>
+    
+
+    <div class="content">
+        
+    <div class="post">
+        
+    <h1 class="post-title"><a href="https://vcrn.github.io/vim-cheat-sheet/">Vim cheat sheet</a></h1>
+    <div class="post-meta-inline">
+        
+    <span class="post-date">
+            2022-09-28
+        </span>
+
+    </div>
+
+    
+        <span class="post-tags-inline">
+                :: tags:&nbsp;
+                <a class="post-tag" href="https://vcrn.github.io/tags/vim/">#Vim</a></span>
+    
+
+        
+        <div class="post-content">
+            <p>This is a cheat sheet for the text editor Vim. If you want to learn Vim, I strongly recommend you to start out with doing <code>vimtutor</code>.</p>
+<span id="continue-reading"></span>
+<p>A short note: Vim works by combining operators with (optional numbers and) motions. 
+To abort what you're doing (leaving Insert mode or Visual mode, aborting an operation, etc.) press <code>&lt;ESC&gt;</code>; <code>Ctrl+c</code> usually works too.</p>
+<h1 id="motions">Motions:</h1>
+<ul>
+<li><code>w</code>  moves to first character of next word;</li>
+<li><code>b</code>  moves to first character of current or previous word;</li>
+<li><code>e</code>  moves to last character of current or next word;</li>
+<li><code>0</code>  moves to the first character of line;</li>
+<li><code>^</code>  moves to first non-blank character of line;</li>
+<li><code>$</code>  moves to last character of line;</li>
+<li><code>t{char}</code>  moves forward on the line to the position before the character entered after <code>t</code>;</li>
+<li><code>T{char}</code>  moves backward on the line to the position before the character entered after <code>T</code>;</li>
+<li><code>f{char}</code>  moves forward on the line to the position of the character entered after <code>f</code>;</li>
+<li><code>F{char}</code>  moves backward on the line to the position of the character entered after <code>F</code>;</li>
+<li>These motions can be appended to a number to repeat the movement;</li>
+</ul>
+<h1 id="navigation">Navigation:</h1>
+<ul>
+<li><code>gg</code>  goes to first line of file;</li>
+<li><code>G</code>  goes to last line of file;</li>
+<li><code>Ctrl+g</code>  displays current line position of cursor and total number of lines of file;</li>
+<li><code>{line}G</code> or <code>{line}gg</code>  where <code>{line}</code> is the number of the line where you want to place the cursor;</li>
+</ul>
+<h1 id="insert-mode">Insert mode:</h1>
+<ul>
+<li><code>i</code>  enters insert mode at cursor location;</li>
+<li><code>a</code>  enters insert mode one step AFTER cursor position (<code>ea</code> appends to current word);</li>
+<li><code>I</code>  prepends to line, i.e. enters insert mode at the first non-blank character of line;</li>
+<li><code>A</code>  appends to line, i.e. enters insert mode AFTER the end of the line; </li>
+<li><code>o</code>  opens the line below the cursor and enters Insert mode;</li>
+<li><code>O</code>  opens the line above the cursor and enters Insert mode;</li>
+<li><code>r</code>  replaces the symbol the cursor is placed on with the symbol entered after <code>r</code>.</li>
+<li><code>R</code>  replaces multiple symbols with the ones entered after  <code>R</code>, starting where the cursor was placed and stopping when pressing <code>&lt;ESC&gt;</code>.</li>
+<li><code>Ctrl+w</code>  deletes a whole word before the cursor while in Insert mode;</li>
+<li><code>Ctrl+u</code>  deletes the line before the cursor while in Insert mode;</li>
+</ul>
+<h1 id="visual-selection-mode">Visual selection mode:</h1>
+<ul>
+<li><code>v</code>  enter Visual mode, where you can mark text by using motions, which can be deleted, yanked (copied), 
+saved to a new file named <code>NAME</code> (by typing  <code>:w NAME</code>  after text has been marked). </li>
+<li><code>V</code>  enters Visual Line mode with whole lines are being marked;</li>
+<li><code>Ctrl+v</code>  enters Visual Block mode where rectangular blocks are marked. End with <code>&lt;ESC&gt;</code> to apply the following operations:
+** to insert text, use  <code>Shift+i</code>;
+** to change text, use <code>c</code>;
+** to delete text, use <code>d</code> or <code>x</code> (this will be applied right away followed by exiting Visual Block mode);</li>
+</ul>
+<h1 id="cutting-copying-pasting-using-vim-s-clipboard">Cutting, copying, pasting using Vim's clipboard:</h1>
+<ul>
+<li><code>d</code>  followed by motion to cut text: <code>dd</code>  to cut a whole line;</li>
+<li><code>D</code> or <code>d$</code>  to cut rest of line;</li>
+<li><code>c</code>  followed by motion cuts the chosen text and enters Insert mode: <code>cc</code> cuts the whole line; </li>
+<li><code>x</code>  to cut a single character;</li>
+<li><code>y</code>  followed by motion to copy (AKA 'yank') text: <code>yy</code>  to yank a whole line</li>
+<li><code>p</code>  pastes text from Vim's clipboard, inserting it after the cursor;</li>
+<li><code>P</code>  pastes text from Vim's clipboard, inserting it after the cursor;</li>
+<li>The above operators can be used when text has been marked in Visual mode;</li>
+</ul>
+<h1 id="edit">Edit:</h1>
+<ul>
+<li><code>u</code>  undo last operation;</li>
+<li><code>Ctrl+r</code>  to redo undone operation;</li>
+<li><code>&gt;&gt;</code>  indents line where cursor is placed, <code>&gt;</code> indents text marked via Visual mode;</li>
+<li><code>&lt;&lt;</code>  dedents line where cursor is placed, <code>&lt;</code> dedents text marked via Visual mode;</li>
+</ul>
+<h1 id="commands">Commands:</h1>
+<ul>
+<li><code>:w</code>  to save;</li>
+<li><code>:w NAME</code>  to save to not pre-existing file named <code>NAME</code>, either saving the whole file or 
+only the text marked via visual mode;</li>
+<li><code>:q!</code>  to quit without saving changes;</li>
+<li><code>:wq</code>  to save and quit;</li>
+<li><code>:r NAME</code>  to insert content of file <code>NAME</code> in line below the cursor;</li>
+<li><code>:r !{external command}</code>  reads from command and puts it below the cursor position;</li>
+</ul>
+<h1 id="cutting-copying-pasting-using-system-clipboard">Cutting, copying, pasting using system clipboard:</h1>
+<ul>
+<li><code>Shift+Ctrl+v</code> or <code>&quot;+p</code>  pastes text to the file from the system clipboard;</li>
+<li><code>Shift+Ctrl+x</code> or <code>&quot;+x</code>  cuts text from the file to the system clipboard;</li>
+<li><code>Shift+Ctrl+c</code> or <code>&quot;+c</code>  copies text from the file to the system clipboard;</li>
+<li>Explanation: In the second alternative of the operations above, the system clipboard is interacted with by entering <code>&quot;</code> (the <code>registers symbol</code>), 
+then <code>+</code> to access the clipboard register, followed by what we want to do with the clipboard;</li>
+</ul>
+<h1 id="search-find-replace">Search, find, replace:</h1>
+<ul>
+<li><code>:/</code>  followed by a search word followed by <code>&lt;Enter&gt;</code> to find the first instance of the word,
+followed by  <code>n</code>  to continue search forward or  <code>N</code>  to continue search backward;</li>
+<li><code>:?</code> works like  <code>/</code>  but starts to search backward right away after <code>&lt;Enter&gt;</code>;</li>
+<li><code>:s/old/new</code>  substitutes <code>new</code> for <code>old</code> at the first match found: append with  <code>/g</code>  to
+do it for the whole line;</li>
+<li><code>:%s/old/new/g</code>  replaces every occurence in the whole file;</li>
+<li><code>:%s/old/new/gc</code>  finds all occurances in the file and asks whether you want to replace them;</li>
+<li><code>:#,#s/old/new/g</code>  replaces <code>old</code> for <code>new</code> between lines <code>#,#</code>;</li>
+<li><code>%</code>  to find matching <code>)</code>, <code>]</code>, or <code>}</code> which cursor is placed on;</li>
+<li><code>:set ic</code>  to set search to ignore case (<code>:set ignorecase</code>  also works);</li>
+<li><code>:set noic</code>  to set search to not ignore case;</li>
+<li><code>:/SEARCHWORD\c</code>  to search for <code>SEARCHWORD</code> and ignoring cases in just that search;</li>
+<li><code>:set hls</code>  is to enable highlighting of matches in search (<code>:set hlsearch</code>  also works);</li>
+<li><code>:set nohls</code>  is to disable highlighting of matches in search;</li>
+<li>TODO: What does  <code>:set is</code>  do? So called <code>insearch</code>;</li>
+</ul>
+<h1 id="execute-external-commands">Execute external commands:</h1>
+<ul>
+<li><code>:!{external command}</code>  followed by <code>&lt;Enter&gt;</code> runs any external shell command, such as <code>ls -a</code> or <code>dir</code>;</li>
+</ul>
+<h1 id="completion">Completion:</h1>
+<ul>
+<li>Starting to write a command, like  <code>:e</code>  followed by  <code>&lt;TAB&gt;</code>  autocompletes it in
+alphabetical order, such as the case in most shells and terminals. Pressing 
+<code>Ctrl+d</code>  displays all possible completions.</li>
+</ul>
+<h1 id="navigating-directories">Navigating directories</h1>
+<ul>
+<li>Running <code>vim .</code> in a terminal opens a directory listing that can be navigated with <code>j</code>, <code>k</code> and <code>&lt;Enter&gt;</code>. 
+To create a new file, press <code>%</code>; to create a new directory, press <code>d</code>. To return to this view from a file that has been entered from here, 
+use <code>:Ex</code>. External commands can be run by <code>:! {command}</code>.</li>
+</ul>
+
+        </div>
+
+        
+    </div>
+
+    </div>
+
+    
+    <footer class="footer">
+        <div class="footer__inner">
+                <div class="copyright copyright--user"> </div>
+            </div>
+    </footer>
+    
+
+</div>
+</body>
+
+</html>

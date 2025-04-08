@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>vcrn</title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta name="robots" content="noodp"/>
+
+    <link rel="stylesheet" href="https://vcrn.github.io/style.css">
+    <link rel="stylesheet" href="https://vcrn.github.io/color/pink.css">
+
+    <link rel="stylesheet" href="https://vcrn.github.io/font-hack-subset.css">
+
+    </head>
+
+<body class="">
+<div class="container">
+    
+    <header class="header">
+        <div class="header__inner">
+            <div class="header__logo">
+                    
+                <a href="https://vcrn.github.io" style="text-decoration: none;">
+                    <div class="logo">
+                      
+                            vcrn
+                        
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        
+        
+                <nav class="menu">
+            <ul class="menu__inner">
+                <li class="active"><a href="https://vcrn.github.io">Blog</a></li>
+            
+                <li><a href="https://vcrn.github.io/tags">Tags</a></li>
+            
+                <li><a href="https://vcrn.github.io/about">About</a></li>
+            
+                <li><a href="https://github.com/vcrn" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+            </ul>
+        </nav>
+    
+    
+        
+    </header>
+    
+
+    <div class="content">
+        
+    <div class="post">
+        
+    <h1 class="post-title"><a href="https://vcrn.github.io/struct-rust-proj/">Structure of a Rust project</a></h1>
+    <div class="post-meta-inline">
+        
+    <span class="post-date">
+            2023-05-23
+        </span>
+
+    </div>
+
+    
+        <span class="post-tags-inline">
+                :: tags:&nbsp;
+                <a class="post-tag" href="https://vcrn.github.io/tags/rust/">#Rust</a></span>
+    
+
+        
+        <div class="post-content">
+            <p>It can be a bit confusing to understand how to structure a Rust project once it starts to grow 
+beyond some Rust files directly located in <code>src/</code> that are only accessed from <code>main.rs</code> or 
+<code>lib.rs</code>. This is a simple overview of how a Rust project can be structured. For a more elaborate 
+explanation of how to structure Rust projects, read chapter 8 of the book &quot;Programming Rust: 
+Fast, Safe Systems Development&quot;. </p>
+<span id="continue-reading"></span><h1 id="crates-and-packages">Crates and Packages</h1>
+<p>As per the Rust book, chapter 7, the crate is the smallest amount of code that the Rust compiler
+considers at a time. This <em>could</em> <em>be</em> just one <code>.rs</code>-file. There are 2 types of crates: binary 
+crates, which are compiled into executable binaries; and library crates, which are compiled 
+into libraries meant to be used by other libraries or executables.</p>
+<p>A package is a bundle of one or more crates that provides a set of functionality, and 
+contains in its <code>root</code> a <code>Cargo.toml</code> manifest file with the section <code>[package]</code>.</p>
+<h2 id="the-binary-crate">The Binary Crate</h2>
+<p>A binary crate needs to contain a <code>main</code> function or some other function marked as an
+entry point: In this text, it's assumed that only <code>main</code> functions are used as entry 
+points. There are designated default paths of files that <code>Cargo</code> will analyze for 
+entry points, but these can be customized in <code>Cargo.toml</code>. Running <code>cargo build</code> will
+compile the crates in the package, and <code>cargo run</code> will try to run any executable 
+binaries.</p>
+<h3 id="build">Build</h3>
+<p>Running <code>cargo build</code> will look for the following files:</p>
+<ul>
+<li><code>src/main.rs</code></li>
+<li><code>src/bin/*.rs</code></li>
+<li><code>src/bin/*/main.rs</code>
+Here's an example of a project files of all these kinds:</li>
+</ul>
+<pre style="background-color:#151515;color:#e8e8d3;"><code><span>├── src
+</span><span>│   ├── main.rs
+</span><span>│   └── bin
+</span><span>│       ├── foo.rs
+</span><span>│       ├── bar.rs
+</span><span>│       └── qux
+</span><span>│           └── main.rs
+</span><span>└── Cargo.toml
+</span></code></pre>
+<p>The files with the <code>.rs</code>-extension need to contain a <code>main</code> function, which will be the entry 
+point in the respective file. Let's say that the <code>name</code> field under the <code>package</code> section in the
+<code>Cargo.toml</code> is <code>zwy</code>, and that the <code>[[bin]]</code> section is missing. In this case, the following
+executable binaries will be generated:</p>
+<table><thead><tr><th>Name</th><th>Entry point</th></tr></thead><tbody>
+<tr><td>zwy</td><td>src/main.rs</td></tr>
+<tr><td>foo</td><td>src/bin/foo.rs</td></tr>
+<tr><td>bar</td><td>src/bin/bar.rs</td></tr>
+<tr><td>qux</td><td>src/bin/qux/main.rs</td></tr>
+</tbody></table>
+<p>Note that the following two files are not allowed to co-exist during compilation, and will lead 
+to an error:</p>
+<ul>
+<li><code>src/bin/&lt;name&gt;.rs</code></li>
+<li><code>src/bin/&lt;name&gt;/main.rs</code></li>
+</ul>
+<p>The binaries that were compiled using entry points located in <code>src/bin</code> can be given other names
+by adding <code>[[bin]]</code> sections in <code>Cargo.toml</code>. For example, the following <code>Cargo.toml</code>:</p>
+<pre data-lang="toml" style="background-color:#151515;color:#e8e8d3;" class="language-toml "><code class="language-toml" data-lang="toml"><span>[</span><span style="color:#ffb964;">package</span><span>]
+</span><span style="color:#ffb964;">name </span><span>= </span><span style="color:#556633;">&quot;</span><span style="color:#99ad6a;">zwy</span><span style="color:#556633;">&quot;
+</span><span style="color:#ffb964;">version </span><span>= </span><span style="color:#556633;">&quot;</span><span style="color:#99ad6a;">0.1.0</span><span style="color:#556633;">&quot;
+</span><span style="color:#ffb964;">edition </span><span>= </span><span style="color:#556633;">&quot;</span><span style="color:#99ad6a;">2021</span><span style="color:#556633;">&quot;
+</span><span>
+</span><span>[[</span><span style="color:#ffb964;">bin</span><span>]]
+</span><span style="color:#ffb964;">name </span><span>= </span><span style="color:#556633;">&quot;</span><span style="color:#99ad6a;">oof</span><span style="color:#556633;">&quot;
+</span><span style="color:#ffb964;">path </span><span>= </span><span style="color:#556633;">&quot;</span><span style="color:#99ad6a;">src/bin/foo.rs</span><span style="color:#556633;">&quot;
+</span><span>
+</span><span>[[</span><span style="color:#ffb964;">bin</span><span>]]
+</span><span style="color:#ffb964;">name </span><span>= </span><span style="color:#556633;">&quot;</span><span style="color:#99ad6a;">xuq</span><span style="color:#556633;">&quot;
+</span><span style="color:#ffb964;">path </span><span>= </span><span style="color:#556633;">&quot;</span><span style="color:#99ad6a;">src/bin/qux/main.rs</span><span style="color:#556633;">&quot;
+</span></code></pre>
+<p>will results in these binaries:</p>
+<table><thead><tr><th>Name</th><th>Entry point</th></tr></thead><tbody>
+<tr><td>zwy</td><td>src/main.rs</td></tr>
+<tr><td>oof</td><td>src/bin/foo.rs</td></tr>
+<tr><td>bar</td><td>src/bin/bar.rs</td></tr>
+<tr><td>xuq</td><td>src/bin/qux/main.rs</td></tr>
+</tbody></table>
+<p>It's possible to omit the <code>path</code> field, in which case the path will be assumed to be 
+<code>src/bin/&lt;name&gt;.rs</code> or <code>src/bin/&lt;name&gt;/main.rs</code>. When the <code>path</code> field is omitted, compilation
+will fail if no file is found at either of these locations, and is mostly useful to ensure 
+that the corresponding binary indeed was compiled and using one of these entry points.</p>
+<h3 id="run">Run</h3>
+<p>Running <code>cargo run</code> with multiple binaries available will fail, unless the <code>default-run</code> field 
+under the <code>[package]</code> section in <code>Cargo.toml</code> is specified. Otherwise, the binary will have to 
+be specified in the command, such as <code>cargo run --bin bar</code> to run the <code>bar</code> binary. The same 
+behaviour would be achieved with <code>cargo run</code> if <code>Cargo. toml</code> contains the following:</p>
+<pre data-lang="toml" style="background-color:#151515;color:#e8e8d3;" class="language-toml "><code class="language-toml" data-lang="toml"><span>[</span><span style="color:#ffb964;">package</span><span>]
+</span><span style="color:#ffb964;">default-run </span><span>= </span><span style="color:#556633;">&quot;</span><span style="color:#99ad6a;">bar</span><span style="color:#556633;">&quot;
+</span></code></pre>
+<h2 id="the-library-crate-and-modules">The Library Crate and Modules</h2>
+<p>Library crates lack a <code>main</code> function. The default library crate is <code>src/lib.rs</code>, but custom paths
+and names can be specified in <code>Cargo.toml</code> by adding a <code>[lib]</code> section. In the text, the library 
+crate is assumed to be <code>src/lib.rs</code>.</p>
+<p>Modules are <code>.rs-files</code> that aren't crates, and these can contain a collection of items such as 
+functions, structs, enums, traits, other modules, etc. </p>
+<p>Both <code>src/lib.rs</code> and <code>src/main.rs</code> have special privilege in that they by default can access 
+all <code>src/*.rs</code> and <code>src/*/mod.rs</code> files. Consider the following structure:</p>
+<pre style="background-color:#151515;color:#e8e8d3;"><code><span>├── src
+</span><span>│   ├── main.rs
+</span><span>│   ├── lib.rs
+</span><span>│   ├── foo.rs
+</span><span>│   ├── bar
+</span><span>│   │   ├── mod.rs
+</span><span>│   │   └── baz.rs
+</span><span>│   └── bin
+</span><span>│       └── qux.rs
+</span><span>└── Cargo.toml
+</span></code></pre>
+<p>Note that <code>src/bar/mod.rs</code> can be replaced with <code>src/bar.rs</code>. These cannot co-exist, and will
+behave in the same manner (what access they are granted by default, how they are accessed, etc). Note also 
+that <code>src/bin/qux.rs</code> could be replaced with <code>src/bin/qux/main.rs</code> and that this directory can be further 
+populated by modules and sub-directories containing sub-modules, just like <code>src/bar</code> can be. </p>
+<p>By default, <code>main.rs</code> and <code>lib.rs</code> will be able to access the content of <code>foo.rs</code> and <code>bar/mod.rs</code>,
+but not <code>bar/baz.rs</code> directly. To access <code>foo.rs</code> and <code>bar/mod.rs</code>, add</p>
+<pre data-lang="rust" style="background-color:#151515;color:#e8e8d3;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#888888;">// In `main.rs` or `lib.rs`
+</span><span style="color:#8fbfdc;">mod </span><span style="color:#ffb964;">foo</span><span>;  </span><span style="color:#888888;">// Grants access to `foo.rs` 
+</span><span style="color:#8fbfdc;">mod </span><span style="color:#ffb964;">bar</span><span>;  </span><span style="color:#888888;">// Grants access to `bar/main.rs`
+</span></code></pre>
+<p>Only <code>bar/mod.rs</code> will be able to access <code>bar/baz.rs</code>, and <code>bar/mod.rs</code> won't be able to access any
+other content of <code>src/</code>. By adding </p>
+<pre data-lang="rust" style="background-color:#151515;color:#e8e8d3;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#888888;">// In `bar/mod.rs`
+</span><span style="color:#8fbfdc;">mod </span><span style="color:#ffb964;">baz</span><span>;
+</span></code></pre>
+<p>to <code>bar/mod.rs</code>, it can access <code>bar/baz.rs</code>. Neither <code>foo.rs</code> nor <code>bar/baz.rs</code> will be able to 
+access any content of <code>src/</code>. To allow <code>main.rs</code> and <code>lib.rs</code> to access <code>bar/baz.rs</code>, it can be 
+done via <code>bar/mod.rs</code>, by adding </p>
+<pre data-lang="rust" style="background-color:#151515;color:#e8e8d3;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#888888;">// In `bar/mod.rs`
+</span><span style="color:#8fbfdc;">pub mod </span><span style="color:#ffb964;">baz</span><span>;
+</span></code></pre>
+<p>to it. Now <code>bar/mod.rs</code> extends the visibility of <code>bar/baz.rs</code> to <code>lib.rs</code> and <code>main.rs</code>, and it can
+be accessed from there via <code>bar::baz</code>. The scope to which <code>bar/baz.rs</code> is made visible can be 
+controlled by specifying one using <code>pub(&lt;scope&gt;) mod baz;</code>.</p>
+<p>To enable modules to access another another module, it can be done via <code>lib.rs</code> or <code>main.rs</code>. By 
+adding</p>
+<pre data-lang="rust" style="background-color:#151515;color:#e8e8d3;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#888888;">// In `main.rs` or `lib.rs`
+</span><span style="color:#8fbfdc;">pub mod </span><span style="color:#ffb964;">bar</span><span>;
+</span></code></pre>
+<p><code>foo.rs</code> will now be able to access the <code>bar</code> module. This, however, isn't done via the <code>mod bar;</code>,
+but via</p>
+<pre data-lang="rust" style="background-color:#151515;color:#e8e8d3;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#888888;">// In `src/foo.rs`
+</span><span>use crate::bar;
+</span></code></pre>
+<p>since the access is granted via the library or binary crate. In this scenario, <code>bar</code> will also be 
+visible to binary crates in <code>src/bin/</code>, but in order to access <code>bar</code> from there, the following needs
+to be added:</p>
+<pre data-lang="rust" style="background-color:#151515;color:#e8e8d3;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#888888;">// In `src/bin/qux.rs`
+</span><span>use zwy::bar;  </span><span style="color:#888888;">// `zwy` is the `name` field of `[package]` in `Cargo.toml`
+</span></code></pre>
+<p>Changing <code>pub mod bar;</code> in <code>lib.rs</code> to <code>pub(crate) mod bar;</code> will make it visible only inside the 
+library crate (for example from the <code>foo.rs</code> module), but not from any binary crates in <code>src/bin/</code>.</p>
+<h1 id="workspaces">Workspaces</h1>
+<p>A workspace is a set of packages that are managed together. A workspace with the following structure</p>
+<pre style="background-color:#151515;color:#e8e8d3;"><code><span>├── foo
+</span><span>│   ├── src.rs
+</span><span>│   │   ├── main.rs
+</span><span>│   │   └── qux.rs
+</span><span>│   └── Cargo.toml
+</span><span>├── bar
+</span><span>│   ├── src.rs
+</span><span>│   │   ├── lib.rs
+</span><span>│   │   └── baz.rs
+</span><span>│   └── Cargo.toml
+</span><span>└── Cargo.toml
+</span></code></pre>
+<p>has 2 packages, <code>foo</code> and <code>bar</code>. These are called its members, and are defined in the <code>/Cargo.toml</code>
+with</p>
+<pre data-lang="toml" style="background-color:#151515;color:#e8e8d3;" class="language-toml "><code class="language-toml" data-lang="toml"><span>[</span><span style="color:#ffb964;">workspace</span><span>]
+</span><span style="color:#ffb964;">members </span><span>= [
+</span><span>    </span><span style="color:#556633;">&quot;</span><span style="color:#99ad6a;">foo</span><span style="color:#556633;">&quot;</span><span>,
+</span><span>    </span><span style="color:#556633;">&quot;</span><span style="color:#99ad6a;">bar</span><span style="color:#556633;">&quot;</span><span>,
+</span><span>]
+</span></code></pre>
+<p>There's a lot of other fields that can be specified, but I won't go into further detail than just
+mentioning the existence of workspaces.</p>
+
+        </div>
+
+        
+    </div>
+
+    </div>
+
+    
+    <footer class="footer">
+        <div class="footer__inner">
+                <div class="copyright copyright--user"> </div>
+            </div>
+    </footer>
+    
+
+</div>
+</body>
+
+</html>

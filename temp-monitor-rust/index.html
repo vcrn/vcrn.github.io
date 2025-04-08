@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>vcrn</title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta name="robots" content="noodp"/>
+
+    <link rel="stylesheet" href="https://vcrn.github.io/style.css">
+    <link rel="stylesheet" href="https://vcrn.github.io/color/pink.css">
+
+    <link rel="stylesheet" href="https://vcrn.github.io/font-hack-subset.css">
+
+    </head>
+
+<body class="">
+<div class="container">
+    
+    <header class="header">
+        <div class="header__inner">
+            <div class="header__logo">
+                    
+                <a href="https://vcrn.github.io" style="text-decoration: none;">
+                    <div class="logo">
+                      
+                            vcrn
+                        
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        
+        
+                <nav class="menu">
+            <ul class="menu__inner">
+                <li class="active"><a href="https://vcrn.github.io">Blog</a></li>
+            
+                <li><a href="https://vcrn.github.io/tags">Tags</a></li>
+            
+                <li><a href="https://vcrn.github.io/about">About</a></li>
+            
+                <li><a href="https://github.com/vcrn" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+            </ul>
+        </nav>
+    
+    
+        
+    </header>
+    
+
+    <div class="content">
+        
+    <div class="post">
+        
+    <h1 class="post-title"><a href="https://vcrn.github.io/temp-monitor-rust/">Temperature monitor for Raspberry Pi written in Rust</a></h1>
+    <div class="post-meta-inline">
+        
+    <span class="post-date">
+            2021-11-03
+        </span>
+
+    </div>
+
+    
+        <span class="post-tags-inline">
+                :: tags:&nbsp;
+                <a class="post-tag" href="https://vcrn.github.io/tags/rust/">#Rust</a>&nbsp;
+                <a class="post-tag" href="https://vcrn.github.io/tags/raspberry-pi/">#Raspberry Pi</a></span>
+    
+
+        
+        <div class="post-content">
+            <p>I decided to build a resource monitoring tool in Rust for Raspberry Pi, starting with the monitoring of component temperatures since I have previously written one in Python. In this post, I’ll break down the code related to the temperature monitor (which can be found <a href="https://github.com/vcrn/temp-monitor-raspberry-pi-rust">here</a>) to a more detailed level than usual since you need to be more exhaustive in how you write the code in Rust than in comparison with Python. The advantage of having this application written in Rust instead of Python is that it will need less computer resources to run. At the end of this post, the source code for both the temperature monitoring app and the full resource monitoring app can be found. </p>
+<span id="continue-reading"></span><h1 id="print-vs-println">print!() vs. println!()</h1>
+<p>To print text, you can use <code>println!()</code> to print what is given to it, followed by a new line. If you don't want to append a new line, <code>print!()</code> is usually described as <code>println!()</code> without the new line character. But, using <code>print!()</code> won’t actually print anything until a new line character is encountered or until the standard output stream (stdout) is flushed. Thus, <code>print!()</code> needs to be followed by <code>io::stdout().flush()</code>.</p>
+<h1 id="string-vs-str">String vs. &amp;str</h1>
+<p>In Rust, there are two types which can handles strings: the <code>String</code> and <code>&amp;str</code>.</p>
+<p>The <code>String</code> type acts in many respects like a vector. The data is stored in the same way as a vector, but can only contain a sequence of UTF-8 symbols. The data is allocated on the heap, while a pointer to this data along with its length and capacity is stored together on the stack. The String can grow in size. A variable which stores text entered by the user at run time is stored as a String, since its size is unknown at compile time.</p>
+<p>The <code>&amp;str</code> type, also known as &quot;string slice&quot;, is a reference to a part of a String. Since it is a reference, it is immutable. When a variable is assigned the value of a text string present in the source code, as in the following example, it is known as a string literal and is also of type <code>&amp;str</code>:</p>
+<pre data-lang="rust" style="background-color:#151515;color:#e8e8d3;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#8fbfdc;">let</span><span> some_str = </span><span style="color:#556633;">&quot;</span><span style="color:#99ad6a;">Some text</span><span style="color:#556633;">&quot;</span><span>;
+</span></code></pre>
+<p>At run time, &quot;Some text&quot; is present in the executable, and <code>some_str</code> is stored on the stack with a pointer to this piece of code present in the executable. <code>some_str</code> is referring to this section of read-only memory, and is thus classified as a <code>&amp;str</code>.</p>
+<h1 id="ownership">Ownership</h1>
+<p>To handle allocation of memory, Rust uses a concept called <code>Ownership</code>. The rules of ownership in Rust are the following:</p>
+<ul>
+<li>Each value in Rust has a variable that’s called its owner.</li>
+<li>There can only be one owner at a time.</li>
+<li>When the owner goes out of scope, the value will be dropped.</li>
+</ul>
+<p>This has different effects on the variables and data depending on how it is stored. These two snippets of code will act quite differently:</p>
+<pre data-lang="rust" style="background-color:#151515;color:#e8e8d3;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#8fbfdc;">let</span><span> a = </span><span style="color:#cf6a4c;">1</span><span>; </span><span style="color:#888888;">// Assigns 1 to a.
+</span><span style="color:#8fbfdc;">let</span><span> b = a; </span><span style="color:#888888;">// Makes a copy of a and assigns the value (1) to b.
+</span></code></pre>
+<pre data-lang="rust" style="background-color:#151515;color:#e8e8d3;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#8fbfdc;">let</span><span> s1 = String::from(</span><span style="color:#556633;">&quot;</span><span style="color:#99ad6a;">hello</span><span style="color:#556633;">&quot;</span><span>); </span><span style="color:#888888;">// Assigns the String value &quot;hello&quot; to s1.
+</span><span style="color:#8fbfdc;">let</span><span> s2 = s1; </span><span style="color:#888888;">// Moves the ownership of the value from s1 to s2,
+</span><span>	     </span><span style="color:#888888;">// since this value cannot have two owners.
+</span></code></pre>
+<p>The reason for this difference is that the former value, <code>1</code>, is a primitive data type of a known and fixed size which is stored on the stack, while the latter is stored on the heap. To make a copy of <code>s1</code> to <code>s2</code>, this needs to be explicitly stated. What makes it more complicated is that giving <code>s1</code> as a parameter to a function would also move the ownership to inside that function. To make sure that <code>s1</code> can continue to be used after this step, without moving the ownership, it can be passed as a reference. This is done by preceding the variable with a <code>&amp;</code>, i.e. <code>&amp;s1</code>, and is called borrowing.</p>
+<h1 id="running-terminal-commands">Running terminal commands</h1>
+<p>To run a terminal command, the keyword Command needs to be used and is imported via <code>use std::process::Command</code>. To run the command <code>vcgencmd</code> with the argument <code>measure_temp</code>, the following line is used:</p>
+<pre data-lang="rust" style="background-color:#151515;color:#e8e8d3;" class="language-rust "><code class="language-rust" data-lang="rust"><span>Command::new(</span><span style="color:#556633;">&quot;</span><span style="color:#99ad6a;">vcgencmd</span><span style="color:#556633;">&quot;</span><span>).arg(</span><span style="color:#556633;">&quot;</span><span style="color:#99ad6a;">measure_temp</span><span style="color:#556633;">&quot;</span><span>);
+</span></code></pre>
+<p>And to return the output, <code>.output()</code> is appended. In this project, it used once for reading GPU temperature, and the second time to read the CPU temperature.</p>
+<p>But we still have some steps left to make the returned data  comprehendable for a human. To do this, a new concept needs to be introduced.</p>
+<h1 id="enum">enum</h1>
+<p>Like other languages, it contains the keyword <code>enum</code>, but this concept varies in comparison with other common languages, like C++, for example. <code>enum</code> is used to create a data type which can be one of several different variants. A simple example:</p>
+<pre data-lang="rust" style="background-color:#151515;color:#e8e8d3;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#8fbfdc;">enum </span><span style="color:#ffb964;">Drink </span><span>{
+</span><span>    Coffee(String),
+</span><span>    Tea(String),
+</span><span>}
+</span></code></pre>
+<p>The enum <code>Drink</code> can either be of variant <code>Coffee</code> or <code>Tea</code>, both containing a String value. You could also include more variants, containing other types of values.</p>
+<p>In the code for monitoring the Raspberry Pi, a built-in enum called <code>Result</code> is used, which looks like:</p>
+<pre data-lang="rust" style="background-color:#151515;color:#e8e8d3;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#8fbfdc;">enum </span><span style="color:#ffb964;">Result</span><span>&lt;T, E&gt; {
+</span><span>    Ok(T),
+</span><span>    Err(E),
+</span><span>}
+</span></code></pre>
+<p>There are two variants, one called <code>Ok</code> (containing a successful value of an operation, which is of generic type <code>T</code>) and the other <code>Err</code> (containing the error value, which is of generic type <code>E</code>). Them being of generic type <code>T</code> and <code>E</code> only means that the values contained in <code>Ok</code> and <code>Err</code> can, but don’t have to, be of different types. To get access to the value (of type <code>T</code> or <code>E</code>), either <code>.expect()</code> or <code>.unwrap()</code> may be used, which differ slightly: if either of them returns an <code>Err</code>, the program panics, the difference being that <code>.expect()</code> can be used to display en error message in that case, such as <code>.expect(&quot;Some error message&quot;)</code>. The code</p>
+<pre data-lang="rust" style="background-color:#151515;color:#e8e8d3;" class="language-rust "><code class="language-rust" data-lang="rust"><span>Command::new(</span><span style="color:#556633;">&quot;</span><span style="color:#99ad6a;">vcgencmd</span><span style="color:#556633;">&quot;</span><span>).arg(</span><span style="color:#556633;">&quot;</span><span style="color:#99ad6a;">measure_temp</span><span style="color:#556633;">&quot;</span><span>).output();
+</span></code></pre>
+<p>returns a <code>Result</code>, which may either be an <code>Ok(T)</code> or <code>Err(E)</code>. To get access to the value of type <code>T</code> (or displaying an error message if an <code>Err</code> is returned), it is written as</p>
+<pre data-lang="rust" style="background-color:#151515;color:#e8e8d3;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#8fbfdc;">let</span><span> gpu_temp_output = Command::new(</span><span style="color:#556633;">&quot;</span><span style="color:#99ad6a;">vcgencmd</span><span style="color:#556633;">&quot;</span><span>).arg(</span><span style="color:#556633;">&quot;</span><span style="color:#99ad6a;">measure_temp</span><span style="color:#556633;">&quot;</span><span>).output().expect(</span><span style="color:#556633;">&quot;</span><span style="color:#99ad6a;">Failed to execute command</span><span style="color:#556633;">&quot;</span><span>);
+</span></code></pre>
+<h1 id="source">Source</h1>
+<p>The source code for the app can be found <a href="https://github.com/vcrn/temp-monitor-raspberry-pi-rust">here</a>. The source code for the extended resource monitoring app can be found <a href="https://github.com/vcrn/feo">here</a>.</p>
+
+        </div>
+
+        
+    </div>
+
+    </div>
+
+    
+    <footer class="footer">
+        <div class="footer__inner">
+                <div class="copyright copyright--user"> </div>
+            </div>
+    </footer>
+    
+
+</div>
+</body>
+
+</html>

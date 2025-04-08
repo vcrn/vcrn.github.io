@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>vcrn</title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta name="robots" content="noodp"/>
+
+    <link rel="stylesheet" href="https://vcrn.github.io/style.css">
+    <link rel="stylesheet" href="https://vcrn.github.io/color/pink.css">
+
+    <link rel="stylesheet" href="https://vcrn.github.io/font-hack-subset.css">
+
+    </head>
+
+<body class="">
+<div class="container">
+    
+    <header class="header">
+        <div class="header__inner">
+            <div class="header__logo">
+                    
+                <a href="https://vcrn.github.io" style="text-decoration: none;">
+                    <div class="logo">
+                      
+                            vcrn
+                        
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        
+        
+                <nav class="menu">
+            <ul class="menu__inner">
+                <li class="active"><a href="https://vcrn.github.io">Blog</a></li>
+            
+                <li><a href="https://vcrn.github.io/tags">Tags</a></li>
+            
+                <li><a href="https://vcrn.github.io/about">About</a></li>
+            
+                <li><a href="https://github.com/vcrn" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+            </ul>
+        </nav>
+    
+    
+        
+    </header>
+    
+
+    <div class="content">
+        
+    <div class="post">
+        
+    <h1 class="post-title"><a href="https://vcrn.github.io/raspberry-pi-ssh/">Communicating securely with a Raspberry Pi via SSH</a></h1>
+    <div class="post-meta-inline">
+        
+    <span class="post-date">
+            2021-11-06
+        </span>
+
+    </div>
+
+    
+        <span class="post-tags-inline">
+                :: tags:&nbsp;
+                <a class="post-tag" href="https://vcrn.github.io/tags/raspberry-pi/">#Raspberry Pi</a>&nbsp;
+                <a class="post-tag" href="https://vcrn.github.io/tags/networks/">#Networks</a></span>
+    
+
+        
+        <div class="post-content">
+            <p>Being able to execute commands on a Raspberry Pi via another computer makes you able to use the Raspberry Pi without it being connected to a screen. These are notes I wrote for myself to remember how I set up a Raspberry, and for that reason it might be a bit sparse even though I've fletched them out a bit to be useful for more people. It will also use a quite specific set up, and it won't deal with setting a static IP for the Raspberry via the router, which is preferable but not possible in my case.</p>
+<span id="continue-reading"></span>
+<p>The way I set it up necessitates that you can connect the Raspberry Pi to a screen in order to connect it to the Wi-Fi. It also assumes that the computer you're using to communicate with the Raspberry Pi is running Linux. The following steps will be taken:</p>
+<ol>
+<li>Download an OS and add SSH file</li>
+<li>Create new user and add sudo privileges</li>
+<li>Lock Pi user (and eventually delete it)</li>
+<li>Connect to wi-fi and set the IP to static</li>
+<li>Check SSH-connection from other computer</li>
+<li>Create SSH-key</li>
+<li>Turn off the password for SSH-connection</li>
+</ol>
+<p>1 -  Download an OS for the Raspberry Pi (in my case Raspberry Pi OS Lite). Use Etcher to flash it to a microSD card. In the &quot;boot&quot; directory of the microSD card, create an empty file called &quot;SSH&quot; (without a file extension).</p>
+<p>2 -  Put the card into the Raspberry, boot it up and log in with the default username &quot;pi&quot; and password &quot;raspberry&quot; (if you’re on Raspberry Pi OS). Since we'll have it open for SSH-connections, we should change the username and password right away. This is done by creating a new user and locking/deleting the default user. Run <code>sudo adduser &lt;new username&gt;</code> to create the new user, and give it sudo privilege with <code>sudo usermod &lt;new username&gt; -aG sudo</code>. Run <code>sudo reboot</code> and make sure you can log into the new user.</p>
+<p>3 -  Then, you can lock user &quot;pi&quot; with <code>sudo passwd --lock pi</code>. If you're sure everything's in order with the new user you can run <code>sudo deluser --remove-home pi</code> to delete the default user.</p>
+<p>4 -  Run <code>sudo raspi-config</code> and select the network you want to connect to. Then, run <code>hostname -I</code> to see the Raspberry's IP. Run <code>ip r | grep default</code> and the first IP being displayed is your router's gateway address. Run <code>sudo nano /etc/resolv.conf</code> and here you'll find the DNS IP address next to &quot;nameserver&quot; (which is usually the same as the router’s gateway IP). Run <code>sudo nano /etc/dhcpcd.conf</code> and add the following to the bottom of it:</p>
+<pre style="background-color:#151515;color:#e8e8d3;"><code><span>interface wlan0
+</span><span>static ip_address=&lt;Raspberry’s IP&gt;
+</span><span>static routers=&lt;router’s gateway IP address&gt;
+</span><span>static domain_name_servers=&lt;DNS IP&gt;
+</span></code></pre>
+<p>Save, close the file and reboot the Raspberry.</p>
+<p>5 -  On the other Linux computer that is to communicate with the Raspberry, run the following command to check that you can connect: <code>ssh &lt;Raspberry Pi username&gt;@&lt;Raspberry Pi's IP&gt;</code>. You'll be asked to enter the password for the user. You should now be logged in, and can exit by running <code>exit</code>.</p>
+<p>6 -  On the same computer, generate the SSH-key pair which you'll use to communicate more securely with the Raspberry Pi, by running <code>ssh-keygen</code> and write the path to save it to, including its name (or just press enter to use the default). Enter a passphrase if you want one (if you want to automate things, skip this). This will create two files, one without an extension (private key) and one with the extension .pub (public key).</p>
+<p>Now, to transfer the public key to the Raspberry, run
+<code>ssh-copy-id -i &lt;path to public key&gt; &lt;Raspberry Pi username&gt;@&lt;Raspberry Pi's IP&gt;</code>,
+which might look something like this:
+<code>ssh-copy-id -i home/victor/.ssh/pi_key.pub new_pi_user@181.172.4.321</code></p>
+<p>Now, to log in to the Raspberry using the SSH-key, you need to run
+<code>ssh -i &lt;path to the private key&gt; &lt;Raspberry Pi username&gt;@&lt;Raspberry Pi's IP&gt;</code></p>
+<p>To make this more convenient so you don’t have to run this long command every time you want to log in, run
+<code>nano ~/.ssh/config</code> and add the following:</p>
+<pre style="background-color:#151515;color:#e8e8d3;"><code><span>Host &lt;shortcut-name&gt;
+</span><span>    HostName &lt;IP of Raspberry Pi&gt;
+</span><span>    User &lt;username on Raspberry pi&gt;
+</span><span>    IdentityFile &lt;path to private key&gt;
+</span></code></pre>
+<p>For example:</p>
+<pre style="background-color:#151515;color:#e8e8d3;"><code><span>Host screenless_pi
+</span><span>    HostName 181.172.4.321
+</span><span>    User new_pi_user
+</span><span>    IdentityFile /home/victor/.ssh/pi_key&lt;\p&gt;
+</span></code></pre>
+<p>Now you can simply run <code>ssh screenless_pi</code>, since all the information that was previously supplied in the command (i.e. IP, Pi username and the path to the key) are now stored with <code>screenless_pi</code>.</p>
+<p>7 - To disable the ability establish SSH-connection with a password instead of the keypair (since it's less secure), run the following command on the Raspberry Pi: <code>sudo nano /etc/ssh/sshd_config</code>, and edit the file so it contains <code>PasswordAuthentication no</code> and <code>PermitEmptyPasswords no</code>.</p>
+
+        </div>
+
+        
+    </div>
+
+    </div>
+
+    
+    <footer class="footer">
+        <div class="footer__inner">
+                <div class="copyright copyright--user"> </div>
+            </div>
+    </footer>
+    
+
+</div>
+</body>
+
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>vcrn</title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta name="robots" content="noodp"/>
+
+    <link rel="stylesheet" href="https://vcrn.github.io/style.css">
+    <link rel="stylesheet" href="https://vcrn.github.io/color/pink.css">
+
+    <link rel="stylesheet" href="https://vcrn.github.io/font-hack-subset.css">
+
+    </head>
+
+<body class="">
+<div class="container">
+    
+    <header class="header">
+        <div class="header__inner">
+            <div class="header__logo">
+                    
+                <a href="https://vcrn.github.io" style="text-decoration: none;">
+                    <div class="logo">
+                      
+                            vcrn
+                        
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        
+        
+                <nav class="menu">
+            <ul class="menu__inner">
+                <li class="active"><a href="https://vcrn.github.io">Blog</a></li>
+            
+                <li><a href="https://vcrn.github.io/tags">Tags</a></li>
+            
+                <li><a href="https://vcrn.github.io/about">About</a></li>
+            
+                <li><a href="https://github.com/vcrn" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+            </ul>
+        </nav>
+    
+    
+        
+    </header>
+    
+
+    <div class="content">
+        
+    <div class="post">
+        
+    <h1 class="post-title"><a href="https://vcrn.github.io/temp-monitor-python/">Temperature monitor for Raspberry Pi written in Python</a></h1>
+    <div class="post-meta-inline">
+        
+    <span class="post-date">
+            2020-05-19
+        </span>
+
+    </div>
+
+    
+        <span class="post-tags-inline">
+                :: tags:&nbsp;
+                <a class="post-tag" href="https://vcrn.github.io/tags/python/">#Python</a>&nbsp;
+                <a class="post-tag" href="https://vcrn.github.io/tags/raspberry-pi/">#Raspberry Pi</a></span>
+    
+
+        
+        <div class="post-content">
+            <p>During heavy load, it's common that the Raspberry Pi throttles its CPU and GPU due to too high temperatures being reached. Therefore, it can be of interest to monitor the temperatures of these components. Due to the low specs of the Raspberry, the extra load of running code to monitor these temperatures can unfortunately cause a rise in the temperatures of the components. In this post, I briefly present an application written in Python by expanding on four main points, which are:</p>
+<ul>
+<li>How to read the temperatures of the CPU and GPU.</li>
+<li>How to re-read the temperatures at a given interval.</li>
+<li>How to stop the re-reading.</li>
+<li>What module to use in order to create the GUI.</li>
+</ul>
+<span id="continue-reading"></span><h1 id="how-to-read-the-temperatures-of-the-cpu-and-gpu">How to read the temperatures of the CPU and GPU</h1>
+<p>To check the GPU temperature, run the following command in the terminal:</p>
+<pre data-lang="bash" style="background-color:#151515;color:#e8e8d3;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#ffb964;">vcgencmd</span><span> measure_temp
+</span></code></pre>
+<p>which will return something like</p>
+<pre data-lang="bash" style="background-color:#151515;color:#e8e8d3;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#ffb964;">temp</span><span>=</span><span style="color:#99ad6a;">56.3’C
+</span></code></pre>
+<p>To check the CPU temperature, run the following command in the terminal:</p>
+<pre data-lang="bash" style="background-color:#151515;color:#e8e8d3;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#ffb964;">cat</span><span> /sys/class/thermal/thermal_zone0/temp
+</span></code></pre>
+<p>which will return something like</p>
+<pre data-lang="bash" style="background-color:#151515;color:#e8e8d3;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#ffb964;">53215
+</span></code></pre>
+<p>which is the temperature in Celsius multiplied by 1000.</p>
+<h1 id="how-to-re-read-the-temperatures-at-a-given-interval">How to re-read the temperatures at a given interval</h1>
+<p>In order to re-read the temperature at a given interval, the module <code>Timer</code> is used. <code>Timer</code> takes the arguments of what function to run and how many seconds it should wait before running the function That is, if the following line of code is run</p>
+<pre data-lang="python" style="background-color:#151515;color:#e8e8d3;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#ffb964;">Timer</span><span>(</span><span style="color:#ffb964;">interval</span><span>=</span><span style="color:#cf6a4c;">5</span><span>, </span><span style="color:#ffb964;">function</span><span>=check_temperatures)
+</span></code></pre>
+<p>the function <code>check_temperatures</code> will be run after 5 seconds. How do we go about if we want to perpetually run <code>check_temperatures</code> every 5 seconds, and not just once? By including the above line of code in the function <code>check_temperatures</code> itself, running <code>check_temperatures</code> will queue a new call to this function, which in turn will queue a new call.</p>
+<p>If the function which is called takes arguments, e.g. <code>check_temperatures(x, y)</code>, these need to be supplied to <code>Timer</code> like</p>
+<pre data-lang="python" style="background-color:#151515;color:#e8e8d3;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#ffb964;">Timer</span><span>(</span><span style="color:#ffb964;">interval</span><span>=</span><span style="color:#cf6a4c;">5</span><span>, </span><span style="color:#ffb964;">function</span><span>=check_temperatures, </span><span style="color:#ffb964;">args</span><span>=x, y)
+</span></code></pre>
+<h1 id="how-to-stop-the-re-reading">How to stop the re-reading</h1>
+<p>The Timer-call, more specifically the whole script, can be killed with the following command</p>
+<pre data-lang="python" style="background-color:#151515;color:#e8e8d3;" class="language-python "><code class="language-python" data-lang="python"><span>os.</span><span style="color:#ffb964;">kill</span><span>(os.</span><span style="color:#ffb964;">getpid</span><span>(), signal.</span><span style="color:#ffb964;">SIGTERM</span><span>)
+</span></code></pre>
+<p>This is done in order to prevent queued Timer-calls from being executed. To catch errors from Timer-calls being run after the application is closed, of the type <code>RuntimeError</code>, and then killing the process in order to prevent further calls, the following piece of code can be used:</p>
+<pre data-lang="python" style="background-color:#151515;color:#e8e8d3;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#8fbfdc;">except </span><span>RuntimeError:
+</span><span>os.</span><span style="color:#ffb964;">kill</span><span>(os.</span><span style="color:#ffb964;">getpid</span><span>(), signal.</span><span style="color:#ffb964;">SIGTERM</span><span>)
+</span></code></pre>
+<h1 id="what-module-to-use-in-order-to-create-the-gui">What module to use in order to create the GUI</h1>
+<p>Due to the simplicity of the GUI monitor and <code>Tkinter</code> being preinstalled with Raspbian OS, <code>Tkinter</code> was chosen instead of <code>PyQt</code>.</p>
+<h1 id="source">Source</h1>
+<p>The code for the application can be found <a href="https://github.com/vcrn/temperature-monitor-raspberry">here</a>.</p>
+
+        </div>
+
+        
+    </div>
+
+    </div>
+
+    
+    <footer class="footer">
+        <div class="footer__inner">
+                <div class="copyright copyright--user"> </div>
+            </div>
+    </footer>
+    
+
+</div>
+</body>
+
+</html>

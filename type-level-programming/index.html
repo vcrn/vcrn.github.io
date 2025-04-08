@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>vcrn</title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta name="robots" content="noodp"/>
+
+    <link rel="stylesheet" href="https://vcrn.github.io/style.css">
+    <link rel="stylesheet" href="https://vcrn.github.io/color/pink.css">
+
+    <link rel="stylesheet" href="https://vcrn.github.io/font-hack-subset.css">
+
+    </head>
+
+<body class="">
+<div class="container">
+    
+    <header class="header">
+        <div class="header__inner">
+            <div class="header__logo">
+                    
+                <a href="https://vcrn.github.io" style="text-decoration: none;">
+                    <div class="logo">
+                      
+                            vcrn
+                        
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        
+        
+                <nav class="menu">
+            <ul class="menu__inner">
+                <li class="active"><a href="https://vcrn.github.io">Blog</a></li>
+            
+                <li><a href="https://vcrn.github.io/tags">Tags</a></li>
+            
+                <li><a href="https://vcrn.github.io/about">About</a></li>
+            
+                <li><a href="https://github.com/vcrn" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+            </ul>
+        </nav>
+    
+    
+        
+    </header>
+    
+
+    <div class="content">
+        
+    <div class="post">
+        
+    <h1 class="post-title"><a href="https://vcrn.github.io/type-level-programming/">Type-level programming in Rust</a></h1>
+    <div class="post-meta-inline">
+        
+    <span class="post-date">
+            2024-03-18
+        </span>
+
+    </div>
+
+    
+        <span class="post-tags-inline">
+                :: tags:&nbsp;
+                <a class="post-tag" href="https://vcrn.github.io/tags/rust/">#Rust</a></span>
+    
+
+        
+        <div class="post-content">
+            <p>In Rust, there's a concept sometimes referred to as <code>Type-level programming</code>. To employ this, you'll create a <code>struct</code>, which will (among other things) contain a field of the zero-sized type <code>PhantomData&lt;T&gt;</code>: this will tell the compiler that our <code>struct</code> acts as if it stores a value of type <code>T</code>, and will only be used at compile time for static analysis. Read more in the <a href="https://doc.rust-lang.org/nomicon/phantom-data.html">Rustonomicon</a>.</p>
+<p>I've written a small example where this concept is showcased by applying it to a car, which can be found <a href="https://github.com/vcrn/type_level_example">here</a>.</p>
+<span id="continue-reading"></span>
+<p>Depending on what gear it's in, we should be permitted to do different things, and some things should be available irrespective of what gear we're in. We'd also like to be able to change gear in a convenient manner. We'll stick with two gears, <code>Park</code> and <code>Neutral</code>. Some simple designs that don't employ type-level programming to handle this could be:</p>
+<ul>
+<li>Create an <code>enum Gear</code> with the variants <code>Park</code> and <code>Drive</code>, a <code>struct Car</code> that among other things contains the field <code>gear: Gear</code>, and let the different methods act in different ways depending on the variant in <code>gear</code>.</li>
+<li>Create an <code>enum CarGear</code> with the variants <code>Park(Car)</code> and <code>Drive(Car)</code> that wrap around some <code>struct Car</code>, where <code>struct Car</code> doesn't contain a <code>gear</code> field, since this is handled in the variants wrapping <code>struct Car</code>: This way, every method will need to implement a <code>match</code> statement if it interacts with any data of <code>struct Car</code>, even ones that should be available for all variants and should act in identical ways. These <code>match</code>s will also be the sole guards for limiting functionality of the different gears.</li>
+<li>One <code>struct CarGear</code> for every gear, creating completely different types where the methods they should have in common will need to be individually implemented for every type.</li>
+</ul>
+<p>There's another approach, that this example code presents:</p>
+<ul>
+<li>One <code>trait Gear</code></li>
+<li>One struct for each available concrete gear (that is, <code>Park</code> and <code>Drive</code>), which implements <code>Gear</code> in an empty block.</li>
+<li>One generic <code>struct Car&lt;G: Gear&gt;</code>, with a <code>gear: PhantomData</code> field to keep track of what concrete type were using that implements <code>Gear</code>.</li>
+<li>Finally, and optionally if you'd like to have it all wrapped up in one type, an enum that wraps around <code>struct Car&lt;G: Gear&gt;</code>, whose variants map to the different types implementing <code>Gear</code>.</li>
+</ul>
+<p>The optional step of wrapping the generic <code>Car</code> inside an enum is done inside <code>src/lib.rs</code>, with the rest of the code placed inside <code>src/struct_car.rs</code>. A simplified overview of the code:</p>
+<pre data-lang="rust" style="background-color:#151515;color:#e8e8d3;" class="language-rust "><code class="language-rust" data-lang="rust"><span>use std::marker::PhantomData;
+</span><span>
+</span><span style="color:#8fbfdc;">trait </span><span style="color:#ffb964;">Gear </span><span>{}
+</span><span>
+</span><span style="color:#8fbfdc;">struct </span><span style="color:#ffb964;">Park</span><span>;
+</span><span style="color:#8fbfdc;">struct </span><span style="color:#ffb964;">Drive</span><span>;
+</span><span style="color:#8fbfdc;">impl </span><span>Gear for </span><span style="color:#ffb964;">Park </span><span>{}
+</span><span style="color:#8fbfdc;">impl </span><span>Gear for </span><span style="color:#ffb964;">Drive </span><span>{}
+</span><span>
+</span><span style="color:#8fbfdc;">struct </span><span style="color:#ffb964;">Car</span><span>&lt;G: Gear&gt; {
+</span><span>    </span><span style="color:#ffb964;">speed</span><span>: </span><span style="color:#8fbfdc;">i32</span><span>,
+</span><span>    </span><span style="color:#ffb964;">locked_doors</span><span>: </span><span style="color:#8fbfdc;">bool</span><span>,
+</span><span>    </span><span style="color:#ffb964;">gear</span><span>: PhantomData&lt;G&gt;,
+</span><span>}
+</span><span>
+</span><span style="color:#888888;">// These implementations will only be available for `Park`
+</span><span style="color:#8fbfdc;">impl </span><span style="color:#ffb964;">Car</span><span>&lt;Park&gt; {
+</span><span>    </span><span style="color:#888888;">/// ...
+</span><span>}
+</span><span>
+</span><span style="color:#888888;">// These implementations will only be available for `Drive`
+</span><span style="color:#8fbfdc;">impl </span><span style="color:#ffb964;">Car</span><span>&lt;Drive&gt; {
+</span><span>    </span><span style="color:#888888;">/// ...
+</span><span>}
+</span><span>
+</span><span style="color:#888888;">// These implementations will be available for all types implementing `Gear`
+</span><span style="color:#8fbfdc;">impl</span><span>&lt;G: Gear&gt; </span><span style="color:#ffb964;">Car</span><span>&lt;G&gt; { 
+</span><span>    </span><span style="color:#888888;">/// ...
+</span><span>}
+</span><span>
+</span><span style="color:#888888;">/// Creating a common type
+</span><span style="color:#8fbfdc;">pub enum </span><span style="color:#ffb964;">CommonEnumCar </span><span>{
+</span><span>    Park(Car&lt;Park&gt;),
+</span><span>    Drive(Car&lt;Drive&gt;),
+</span><span>}
+</span><span>
+</span><span style="color:#8fbfdc;">fn </span><span style="color:#fad07a;">main</span><span>() {
+</span><span>    </span><span style="color:#8fbfdc;">let mut</span><span> car = CommonEnumCar::new();
+</span><span>    car.into_drive();
+</span><span>    </span><span style="color:#8fbfdc;">if let </span><span>Car::Drive(</span><span style="color:#8fbfdc;">ref mut</span><span> inner_car) = car {
+</span><span>        inner_car.accelerate(</span><span style="color:#cf6a4c;">3</span><span>);
+</span><span>    }
+</span><span>    println!(</span><span style="color:#556633;">&quot;</span><span style="color:#99ad6a;">Speed: </span><span style="color:#7697d6;">{}</span><span style="color:#556633;">&quot;</span><span>, car.speed()); </span><span style="color:#888888;">// Should display `3`
+</span><span>    car.honk();
+</span><span>    car.lock_doors();
+</span><span>    car.into_park();
+</span><span>    println!(</span><span style="color:#556633;">&quot;</span><span style="color:#99ad6a;">Speed: </span><span style="color:#7697d6;">{}</span><span style="color:#556633;">&quot;</span><span>, car.speed()); </span><span style="color:#888888;">// Should display `0`
+</span><span>}
+</span></code></pre>
+<p>Other sources:</p>
+<ul>
+<li><a href="https://willcrichton.net/notes/type-level-programming/">Will Crichton</a></li>
+<li><a href="https://docs.rs/atsamd-hal/latest/atsamd_hal/typelevel/index.html">ATSAMD HAL</a></li>
+</ul>
+
+        </div>
+
+        
+    </div>
+
+    </div>
+
+    
+    <footer class="footer">
+        <div class="footer__inner">
+                <div class="copyright copyright--user"> </div>
+            </div>
+    </footer>
+    
+
+</div>
+</body>
+
+</html>

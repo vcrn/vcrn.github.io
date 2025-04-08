@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>vcrn</title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta name="robots" content="noodp"/>
+
+    <link rel="stylesheet" href="https://vcrn.github.io/style.css">
+    <link rel="stylesheet" href="https://vcrn.github.io/color/pink.css">
+
+    <link rel="stylesheet" href="https://vcrn.github.io/font-hack-subset.css">
+
+    </head>
+
+<body class="">
+<div class="container">
+    
+    <header class="header">
+        <div class="header__inner">
+            <div class="header__logo">
+                    
+                <a href="https://vcrn.github.io" style="text-decoration: none;">
+                    <div class="logo">
+                      
+                            vcrn
+                        
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        
+        
+                <nav class="menu">
+            <ul class="menu__inner">
+                <li class="active"><a href="https://vcrn.github.io">Blog</a></li>
+            
+                <li><a href="https://vcrn.github.io/tags">Tags</a></li>
+            
+                <li><a href="https://vcrn.github.io/about">About</a></li>
+            
+                <li><a href="https://github.com/vcrn" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+            </ul>
+        </nav>
+    
+    
+        
+    </header>
+    
+
+    <div class="content">
+        
+    <div class="post">
+        
+    <h1 class="post-title"><a href="https://vcrn.github.io/learning-java/">Learning the basics of Java by writing an RSA-app</a></h1>
+    <div class="post-meta-inline">
+        
+    <span class="post-date">
+            2021-01-21
+        </span>
+
+    </div>
+
+    
+        <span class="post-tags-inline">
+                :: tags:&nbsp;
+                <a class="post-tag" href="https://vcrn.github.io/tags/java/">#Java</a>&nbsp;
+                <a class="post-tag" href="https://vcrn.github.io/tags/cryptography/">#Cryptography</a></span>
+    
+
+        
+        <div class="post-content">
+            <p>Due to the similarities of Python and Java, and Java being so widely used, I wanted to learn at least the basics of the language. I recently took a university course in Java, where one part of it consisted in writing an application which had to meet certain criteria of complexity – other than that, you were free to choose the project yourself. Below, I’ll briefly discuss the RSA-encryption app I wrote and what my impression of Java is. RSA-encryption is explained in this <a href="/short-rsa">post</a>.</p>
+<span id="continue-reading"></span><h1 id="the-application">The application</h1>
+<h2 id="menu">Menu</h2>
+<p>The menu gives you the option to generate your own keys or supplying your own keys (in the latter case, tests are run to verify that the keys are correct). In the next stage, you are given the option to encrypt, decrypt or view the keys. In each stage you can also access a simple description of the application.</p>
+<h2 id="generating-keys">Generating keys</h2>
+<p>The generation of the keys follows the steps presented in my previous post, except for one difference: <code>e</code> is set to 65537 in order to make encryption more effective. <code>d</code> is calculated by a function already present in Java (<code>d</code> is the so called modular inverse of <code>e</code>).</p>
+<h2 id="transforming-with-maps">Transforming with maps</h2>
+<p>In order to encrypt non-numerical symbols, I chose to transform the symbols of the input message using a simple map where each symbol is mapped to a certain number (starting from 2, since 0<sup>x</sup> = 0 and 1<sup>x</sup> = 1), differing by 1 to its closest neighbor.</p>
+<h2 id="large-integers">Large integers</h2>
+<p>One requirement for using RSA securely is to use large integers as part of the public and private keys. This causes issues in Java if not handled with extra care, since the largest number the type integer can contain is 2<sup>31</sup>-1 = 2147483647, which can quickly be surpassed during encryption and decryption. This can be avoided by using the <code>BigInteger</code> class or by taking advantage of the following mathematical relationship:</p>
+<pre style="background-color:#151515;color:#e8e8d3;"><code><span>(a b) mod n = ((a mod n) (b mod n)) mod n
+</span></code></pre>
+<p>This means that</p>
+<pre style="background-color:#151515;color:#e8e8d3;"><code><span>a³ mod n = (a a a) mod n = ((a mod n) (a mod n) (a mod n)) mod n = (a² mod n) (a mod n)) mod n
+</span></code></pre>
+<p>which keeps the handled numbers from becoming ≥n<sup>2</sup>. In the end, I chose to both use <code>BigInteger</code> to get familiar with the type class and to also implement a solution using the relationship presented above as practice, even though this ought to have slightly detrimental effects on speed.
+What the app lacks</p>
+<p>I chose to encrypt messages symbol by symbol which is not secure. It also lacks any kind of padding. The disadvantages of these are also briefly discussed in my previous post.</p>
+<h1 id="my-impression-of-java">My impression of Java</h1>
+<h2 id="static-typing">Static typing</h2>
+<p>Coming from Python, something that stood out for me right away was the static typing. I found this annoying at first, but gradually it seemed like something that ensures that safer code is written, and underscored why it is good practice to explicitly type (or state the type of) objects/variables in Python.</p>
+<h2 id="dated-and-verbose">Dated and verbose</h2>
+<p>Coming from Python, a lot of the solutions to problems in Java felt a bit convoluted without any obvious advantages (like higher control of memory). The same goes for it’s verbose style, save for the curly brackets used for wrapping blocks. They can be done away with in a programming language of course, like in Python where only indentation is used, but I feel like a bit of readability is gained with them.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Java feels a bit dated. Due to its large amount of boilerplate code and convoluted manner of achieving certain objectives (at least in comparison with Python but without the advantages of a low level language), it's not something that I'd like to work professionally with nor develop projects in. What I do take away from it though is the advantages of static typing, underscoring the importance of certain practices of coding in Python and increasing my interest of languages that use static typing, and giving me a more positive view of languages that are a tiny bit more verbose than Python (using {} in place of only indentation, for example).</p>
+<h1 id="source">Source</h1>
+<p>The code for the application can be found <a href="https://github.com/vcrn/rsa-app-java">here</a>.</p>
+
+        </div>
+
+        
+    </div>
+
+    </div>
+
+    
+    <footer class="footer">
+        <div class="footer__inner">
+                <div class="copyright copyright--user"> </div>
+            </div>
+    </footer>
+    
+
+</div>
+</body>
+
+</html>
