@@ -53,7 +53,7 @@ menu_items = [
     {name = "Tags", url = "$BASE_URL/tags"},
     # {name = "Archive", url = "$BASE_URL/archive"},
     {name = "About", url = "$BASE_URL/about"},
-    {name = "Projects", url = "$BASE_URL/projects"},
+    #{name = "Projects", url = "$BASE_URL/projects"},
 
     # set newtab to true to make the link open in new tab
     {name = "GitHub", url = "https://github.com/vcrn", newtab = true},
